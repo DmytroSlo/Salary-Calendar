@@ -12,7 +12,7 @@ def messagebox1():
 
 
 def start():
-    os.popen("calendar.py")
+    os.popen("Salari.py")
     root.destroy()
     
 
