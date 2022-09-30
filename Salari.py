@@ -94,7 +94,7 @@ def from_submit():
     Start = start_box.get()
     Finish = finish_box.get()
     Work = work_time_box.get()
-    # Selery = work_time_box.get() * 22,7
+    # Selery = Work * 22,7
     add_calendar = (Data, Start, Finish, Work)
     with sqlite3.connect('db/database.db') as db:
         cursor = db.cursor()
@@ -148,18 +148,32 @@ def export_bind(event):
     mb.showinfo("Експорт данних", msg)
 
 
-def houers():
+def houer(event):
     with sqlite3.connect('db/database.db') as db:
         cursor = db.cursor()
-        query = """ SELECT SUM(Години) FROM calendar """
-        cursor.execute(query)
+        cursor.execute(""" SELECT SUM(Години) FROM calendar """)
+ 
+        while True:
+            row = cursor.fetchone()
+ 
+            if row == None:
+                break
+ 
+            all_time_box["text"] = row[0]
 
 
-def salari():
+def salari(event):
     with sqlite3.connect('db/database.db') as db:
         cursor = db.cursor()
-        query = """ SELECT SUM(Зароблено) FROM calendar """
-        cursor.execute(query)
+        cursor.execute(""" SELECT SUM(Зароблено) FROM calendar """)
+ 
+        while True:
+            row = cursor.fetchone()
+ 
+            if row == None:
+                break
+ 
+            salery_box["text"] = row[0]
 
 
 #Флажки
@@ -204,7 +218,7 @@ window.config(menu = menu)
 data = tk.Label(frame_data, text = "Дата:", font = ("Sylfaen", 12))
 data.pack()
 data.place(x = 10, y = 10)
-data_box = DateEntry(frame_data, foreground = 'black', normalforeground = 'black',
+data_box = DateEntry(frame_data, foreground = 'White', normalforeground = 'black',
                                     selectforeground = 'red', beckground = 'white',
                                     date_pattern = 'dd.mm.YYYY', locale="ru")
 data_box.pack()
@@ -240,16 +254,22 @@ submite.place(x = 10, y = 140)
 salery = tk.Label(frame_statistics, text = "Зароблено:", font = ("Sylfaen", 12))
 salery.pack()
 salery.place(x = 10, y = 10)
-salery_box = tk.Label(frame_statistics, text = salari, font = ("Sylfaen", 10))
+salery_box = tk.Label(frame_statistics, font = ("Sylfaen", 10))
 salery_box.pack()
 salery_box.place(x = 250, y = 13)
+window.bind('<F2>', salari)
 
 all_time = tk.Label(frame_statistics, text = "Відпрацьовано годин:", font = ("Sylfaen", 12))
 all_time.pack()
 all_time.place(x = 10, y = 40)
-all_time_box = tk.Label(frame_statistics, text = houers, font = ("Sylfaen", 10))
+all_time_box = tk.Label(frame_statistics, font = ("Sylfaen", 10))
 all_time_box.pack()
 all_time_box.place(x = 250, y = 43)
+window.bind('<F2>', houer, salari)
+
+stat = Label(frame_statistics, text = "Нажмите F2 то бы одобразить статистику", font = ("Sylfaen", 12))
+stat.pack()
+stat.place(x = 10, y = 73)
 
 #Table
 class Table(tk.Frame):
