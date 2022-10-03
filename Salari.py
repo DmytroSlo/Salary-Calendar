@@ -1,11 +1,8 @@
 import tkinter as tk
 import os
 import sqlite3
-import time
-import webbrowser
-import pandas as pd
+import dbcommand as dc
 from tkcalendar import DateEntry, Calendar
-from datetime import date
 from tkinter import ttk
 from tkinter import *
 from tkinter import Menu
@@ -31,17 +28,6 @@ frame_statistics.pack()
 frame_statistics.place(x = 350, y = 0)
 frame_table.pack()
 frame_table.place(x = 0, y = 200)
-
-
-#Funkcional
-def callback(url):
-    webbrowser.open_new(url)
-
-
-#Кнопки
-def show_info():
-    msg = "Ця програма допомагає підраховувати новий таргет і була зроблена для техніків з відділу Debug/Repair"
-    mb.showinfo("Info", msg)
 
 
 #Refresh
@@ -94,7 +80,6 @@ def from_submit():
     Start = start_box.get()
     Finish = finish_box.get()
     Work = work_time_box.get()
-    # Selery = Work * 22,7
     add_calendar = (Data, Start, Finish, Work)
     with sqlite3.connect('db/database.db') as db:
         cursor = db.cursor()
@@ -107,75 +92,6 @@ def from_submit():
     os.popen("Salari.py")
 
 
-#Excport
-def export():
-    with sqlite3.connect('db/database.db') as db:
-        cursor = db.cursor()
-        query = """ SELECT * FROM calendar """
-        cursor.execute(query)
-
-    columns = [desc[0] for desc in cursor.description]
-    data = cursor.fetchall()
-    df = pd.DataFrame(list(data), columns=columns)
-
-    date_string = time.strftime("%Y-%m-%d")
-    writer = pd.ExcelWriter('Export/Targets-' + date_string + '.xlsx')
-    df.to_excel(writer, sheet_name='bar')
-    writer.save()
-
-
-    msg = "Файл було успішно експортовано до папки Export яка знаходиться в корені програми."
-    mb.showinfo("Експорт данних", msg)
-
-
-def export_bind(event):
-    with sqlite3.connect('db/database.db') as db:
-        cursor = db.cursor()
-        query = """ SELECT * FROM calendar """
-        cursor.execute(query)
-
-    columns = [desc[0] for desc in cursor.description]
-    data = cursor.fetchall()
-    df = pd.DataFrame(list(data), columns=columns)
-
-    date_string = time.strftime("%d.%m.%Y")
-    writer = pd.ExcelWriter('Export/Targets ' + date_string + '.xlsx')
-    df.to_excel(writer, sheet_name='bar')
-    writer.save()
-
-
-    msg = "Файл було успішно експортовано до папки Export яка знаходиться в корені програми."
-    mb.showinfo("Експорт данних", msg)
-
-
-def houer(event):
-    with sqlite3.connect('db/database.db') as db:
-        cursor = db.cursor()
-        cursor.execute(""" SELECT SUM(Години) FROM calendar """)
- 
-        while True:
-            row = cursor.fetchone()
- 
-            if row == None:
-                break
- 
-            all_time_box["text"] = row[0]
-
-
-def salari(event):
-    with sqlite3.connect('db/database.db') as db:
-        cursor = db.cursor()
-        cursor.execute(""" SELECT SUM(Зароблено) FROM calendar """)
- 
-        while True:
-            row = cursor.fetchone()
- 
-            if row == None:
-                break
- 
-            salery_box["text"] = row[0]
-
-
 #Флажки
 r_var = BooleanVar()
 r_var.set(0)
@@ -184,14 +100,14 @@ r_var.set(0)
 #Menu
 menu = Menu(window)
 new_info = Menu(menu, tearoff = 0)
-new_info.add_command(label = 'Info', command = show_info)
+new_info.add_command(label = 'Info', command = dc.show_info)
 new_info.add_separator()
 new_info.add_command(label = 'Refresh', command = refresh)
 window.bind('<F5>', refresh_bind)
 new_info.add_command(label = 'Clear', command = delete_target)
 new_info.add_separator()
-new_info.add_command(label = 'Export', command = export)
-window.bind('<F1>', export_bind)
+new_info.add_command(label = 'Export', command = dc.export)
+window.bind('<F1>', dc.export_bind)
 new_info.add_separator()
 new_info.add_command(label = "Exit", command = exit_plik)
 menu.add_cascade(label = 'File', menu = new_info)
@@ -254,22 +170,18 @@ submite.place(x = 10, y = 140)
 salery = tk.Label(frame_statistics, text = "Зароблено:", font = ("Sylfaen", 12))
 salery.pack()
 salery.place(x = 10, y = 10)
-salery_box = tk.Label(frame_statistics, font = ("Sylfaen", 10))
+salery_box = tk.Label(frame_statistics, text = dc.salar, font = ("Sylfaen", 10))
 salery_box.pack()
 salery_box.place(x = 250, y = 13)
-window.bind('<F2>', salari)
+
 
 all_time = tk.Label(frame_statistics, text = "Відпрацьовано годин:", font = ("Sylfaen", 12))
 all_time.pack()
 all_time.place(x = 10, y = 40)
-all_time_box = tk.Label(frame_statistics, font = ("Sylfaen", 10))
+all_time_box = tk.Label(frame_statistics, text = dc.houer, font = ("Sylfaen", 10))
 all_time_box.pack()
 all_time_box.place(x = 250, y = 43)
-window.bind('<F2>', houer, salari)
 
-stat = Label(frame_statistics, text = "Нажмите F2 то бы одобразить статистику", font = ("Sylfaen", 12))
-stat.pack()
-stat.place(x = 10, y = 73)
 
 #Table
 class Table(tk.Frame):
@@ -307,13 +219,13 @@ table.pack(expand=tk.YES, fill=tk.BOTH)
 #Подпись
 lbl = Label(window, text="by Dmytro Slobodian", font=("Sylfaen", 8))
 lbl.pack()
-lbl.bind("<Button-1>", lambda e: callback("mailto:dmytro.slobodian@reconext.com"))
+lbl.bind("<Button-1>", lambda e: dc.callback("mailto:dmytro.slobodian@reconext.com"))
 lbl.place(x = 5, y = 430)
 
 
 lbl = Label(window, text="form Debug | Repair", font=("Sylfaen", 8))
 lbl.pack()
-lbl.bind("<Button-1>", lambda e: callback("https://www.reconext.com/"))
+lbl.bind("<Button-1>", lambda e: dc.callback("https://www.reconext.com/"))
 lbl.place(x = 590, y = 430)
 
 
