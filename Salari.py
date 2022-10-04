@@ -15,6 +15,7 @@ window.title("Календар")
 window.geometry("700x470+800+400")
 window.resizable(width=False, height=False)
 window.iconbitmap(r"logo.ico")
+window.set_theme("arc")
 
 
 #Контейнеры
@@ -74,22 +75,31 @@ def delete_target():
     mb.showinfo("Очистка данних", msg)
 
 
+#Валидация
+def validation():
+    return len(start_box.get()) != 0 and len(finish_box.get()) != 0 and len(work_time_box.get()) != 0
+
+
 #Добавление
 def from_submit():
-    Data = data_box.get()
-    Start = start_box.get()
-    Finish = finish_box.get()
-    Work = work_time_box.get()
-    add_calendar = (Data, Start, Finish, Work)
-    with sqlite3.connect('db/database.db') as db:
-        cursor = db.cursor()
-        query = """ INSERT INTO calendar(Дата, Початок_праці, Кінець_праці, Години) 
-                                        VALUES (?, ?, ?, ?); """
-        cursor.execute(query, add_calendar)
-        db.commit()
+    if validation():
+        Data = data_box.get()
+        Start = start_box.get()
+        Finish = finish_box.get()
+        Work = work_time_box.get()
+        add_calendar = (Data, Start, Finish, Work)
+        with sqlite3.connect('db/database.db') as db:
+            cursor = db.cursor()
+            query = """ INSERT INTO calendar(Дата, Початок_праці, Кінець_праці, Години) 
+                                            VALUES (?, ?, ?, ?); """
+            cursor.execute(query, add_calendar)
+            db.commit()
 
-    window.destroy()
-    os.popen("Salari.py")
+        window.destroy()
+        os.popen("Salari.py")
+    else:
+        msg = "Не всі поля є заповнені"
+        mb.showerror("Валідація", msg)
 
 
 #Флажки
@@ -161,7 +171,7 @@ work_time_box = tk.Entry(frame_data, font = ("Sylfaen", 10))
 work_time_box.pack()
 work_time_box.place(x = 140, y = 105)
 
-submite = tk.Button(frame_data, text = "Записати", font = ("Sylfaen", 12) , command = from_submit)
+submite = tk.Button(frame_data, text = "Записати", font = ("Sylfaen", 12), command = from_submit)
 submite.pack()
 submite.place(x = 10, y = 140)
 

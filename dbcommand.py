@@ -2,7 +2,6 @@ import sqlite3
 import pandas as pd
 import time
 import webbrowser
-import tkinter as tk
 from datetime import date
 from tkinter import messagebox as mb
 
