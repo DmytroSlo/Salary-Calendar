@@ -15,7 +15,6 @@ window.title("Календар")
 window.geometry("700x470+800+400")
 window.resizable(width=False, height=False)
 window.iconbitmap(r"logo.ico")
-window.set_theme("arc")
 
 
 #Контейнеры
