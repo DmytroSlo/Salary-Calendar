@@ -17,6 +17,10 @@ window.resizable(width=False, height=False)
 window.iconbitmap(r"logo.ico")
 
 
+#Стиль темы
+# style = ttk.Style().theme_use()
+
+
 #Контейнеры
 frame_data = tk.Frame(window, width = 350, height = 200)
 frame_statistics = tk.Frame(window, width = 350, height = 200)
@@ -86,11 +90,12 @@ def from_submit():
         Start = start_box.get()
         Finish = finish_box.get()
         Work = work_time_box.get()
-        add_calendar = (Data, Start, Finish, Work)
+        Saler = work_time_box.get()
+        add_calendar = (Data, Start, Finish, Work, Saler)
         with sqlite3.connect('db/database.db') as db:
             cursor = db.cursor()
-            query = """ INSERT INTO calendar(Дата, Початок_праці, Кінець_праці, Години) 
-                                            VALUES (?, ?, ?, ?); """
+            query = """ INSERT INTO calendar(Дата, Початок_праці, Кінець_праці, Години, Зароблено) 
+                                            VALUES (?, ?, ?, ?, (?*22.7)); """
             cursor.execute(query, add_calendar)
             db.commit()
 
@@ -145,7 +150,7 @@ data.pack()
 data.place(x = 10, y = 10)
 data_box = DateEntry(frame_data, foreground = 'White', normalforeground = 'black',
                                     selectforeground = 'red', beckground = 'white',
-                                    date_pattern = 'dd.mm.YYYY', locale="ru")
+                                    date_pattern = 'dd.mm.YYYY', locale="ru", state = 'readonly')
 data_box.pack()
 data_box.place(x = 140, y = 15)
 
